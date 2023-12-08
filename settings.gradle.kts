@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-rootProject.name = "QrCodeGenerator"
+rootProject.name = "qrcodegenerator"
 

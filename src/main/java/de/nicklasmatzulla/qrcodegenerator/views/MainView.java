@@ -35,6 +35,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class MainView extends JFrame {
 
@@ -53,8 +55,11 @@ public class MainView extends JFrame {
 
     private void createAndShowGui() {
         setLayout(new BorderLayout());
+        final Image logoImage = getImage("logo.png");
+        setIconImage(logoImage);
+        setJMenuBar(createMenuBar());
 
-        createLeftPanel();
+        createLeftPanel(logoImage);
         createRightPanel();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -63,18 +68,34 @@ public class MainView extends JFrame {
         setVisible(true);
     }
 
-    private void createLeftPanel() {
-        JPanel leftPanel = new JPanel(new BorderLayout());
+    private JMenuBar createMenuBar() {
+            final JMenuBar menuBar = new JMenuBar();
+            final Icon githubIcon = new ImageIcon(getImage("github-mark.png").getScaledInstance(20, 20, Image.SCALE_SMOOTH));
+            final JMenuItem githubItem = new JMenuItem(githubIcon);
+            githubItem.addActionListener(e -> {
+                try {
+                    Desktop.getDesktop().browse(new URI("https://github.com/NicklasMatzulla/"));
+                } catch (IOException | URISyntaxException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            menuBar.add(githubItem);
+            return menuBar;
+    }
+
+    private void createLeftPanel(final Image logoImage) {
+        final JPanel leftPanel = new JPanel(new BorderLayout());
+
         leftPanel.setMaximumSize(new Dimension(WIDTH * 35 / 100, HEIGHT));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 5));
 
-        qrCodeImageIcon = new ImageIcon(getLogoImage().getScaledInstance(QR_CODE_SIZE, QR_CODE_SIZE, Image.SCALE_SMOOTH));
-        JLabel qrCodeLabel = new JLabel(qrCodeImageIcon);
+        qrCodeImageIcon = new ImageIcon(logoImage.getScaledInstance(QR_CODE_SIZE, QR_CODE_SIZE, Image.SCALE_SMOOTH));
+        final JLabel qrCodeLabel = new JLabel(qrCodeImageIcon);
         leftPanel.add(qrCodeLabel, BorderLayout.CENTER);
 
-        JButton saveButton = createButton("Speichern", this::handleSave);
-        JButton copyButton = createButton("Kopieren", this::handleCopy);
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
+        final JButton saveButton = createButton("Speichern", this::handleSave);
+        final JButton copyButton = createButton("Kopieren", this::handleCopy);
+        final JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
         buttonPanel.add(saveButton);
         buttonPanel.add(copyButton);
         leftPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -83,16 +104,16 @@ public class MainView extends JFrame {
     }
 
     private void createRightPanel() {
-        JPanel rightPanel = new JPanel(new BorderLayout());
+        final JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.setMaximumSize(new Dimension(WIDTH * 65 / 100, HEIGHT));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 10));
 
-        JPanel urlPanel = new JPanel(new BorderLayout());
+        final JPanel urlPanel = new JPanel(new BorderLayout());
         urlField = new JTextField();
         urlField.setToolTipText("Link oder Text eingeben");
         urlPanel.add(urlField, BorderLayout.CENTER);
 
-        JButton generateButton = createButton("QRCode generieren", this::handleGenerate);
+        final JButton generateButton = createButton("QRCode generieren", this::handleGenerate);
         urlPanel.add(generateButton, BorderLayout.SOUTH);
 
         rightPanel.add(urlPanel, BorderLayout.NORTH);
@@ -100,7 +121,7 @@ public class MainView extends JFrame {
     }
 
     private JButton createButton(final String text, final ActionListener actionListener) {
-        JButton button = new JButton(text);
+        final JButton button = new JButton(text);
         button.addActionListener(actionListener);
         return button;
     }
@@ -131,7 +152,7 @@ public class MainView extends JFrame {
             final JFileChooser fileChooser = createFileChooser();
             final int userSelection = fileChooser.showSaveDialog(null);
             if (userSelection == JFileChooser.APPROVE_OPTION) {
-                File fileToSave = getFileToSave(fileChooser.getSelectedFile());
+                final File fileToSave = getFileToSave(fileChooser.getSelectedFile());
                 ImageIO.write((BufferedImage) image, "png", fileToSave);
             }
         } catch (final IOException ex) {
@@ -172,8 +193,8 @@ public class MainView extends JFrame {
     }
 
     @SuppressWarnings("DataFlowIssue")
-    private Image getLogoImage() {
-        try (final InputStream imageInputStream = QrCodeGenerator.class.getClassLoader().getResourceAsStream("logo.png")) {
+    private Image getImage(final String fileName) {
+        try (final InputStream imageInputStream = QrCodeGenerator.class.getClassLoader().getResourceAsStream(fileName)) {
             return ImageIO.read(imageInputStream);
         } catch (final IOException e) {
             throw new RuntimeException(e);

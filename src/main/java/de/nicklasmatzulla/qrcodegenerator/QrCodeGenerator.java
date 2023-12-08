@@ -16,7 +16,7 @@
 
 package de.nicklasmatzulla.qrcodegenerator;
 
-import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMaterialPalenightIJTheme;
+import com.formdev.flatlaf.FlatLightLaf;
 import de.nicklasmatzulla.qrcodegenerator.views.MainView;
 
 import javax.swing.*;
@@ -24,7 +24,7 @@ import javax.swing.*;
 public class QrCodeGenerator {
 
     public static void main(final String[] args) {
-        FlatMaterialPalenightIJTheme.setup();
+        FlatLightLaf.setup();
         SwingUtilities.invokeLater(MainView::new);
     }
 }
